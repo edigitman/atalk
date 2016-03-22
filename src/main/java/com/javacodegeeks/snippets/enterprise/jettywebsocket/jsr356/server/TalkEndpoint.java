@@ -17,11 +17,9 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/talk/{clientId}")
 public class TalkEndpoint {
 
-    private Map<Session, String> sessions = new HashMap<Session, String>();
-
     @OnOpen
     public void onOpen(@PathParam("clientId") String clientId, Session session) {
-        sessions.put(session, clientId);
+        MemCash.getInstance().getSessions().put(session, clientId);
     }
 
     @OnMessage
@@ -29,14 +27,14 @@ public class TalkEndpoint {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM HH:mm:ss");
         Date date = new Date();
         for (Session ses : session.getOpenSessions()) {
-            String sender = sessions.get(session);
+            String sender = MemCash.getInstance().getSessions().get(session);
             ses.getBasicRemote().sendText("[" + sdf.format(date) + "] " + sender + ": " + txt);
         }
     }
 
     @OnClose
     public void onClose(CloseReason reason, Session session) {
-        sessions.remove(session);
+        MemCash.getInstance().getSessions().remove(session);
         System.out.println("Closing a WebSocket due to " + reason.getReasonPhrase());
     }
 }

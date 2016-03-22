@@ -36,6 +36,7 @@ function TalkViewModel() {
         name = inputText();
         // Create a websocket
         webSocket = new WebSocket("ws://45.32.184.20/talk/" + name);
+        //webSocket = new WebSocket("ws://localhost:8080/talk/" + name);
 
         webSocket.onopen = function (event) {
             $("#userStatus").text("Connected as [" + name + "]!");
@@ -74,8 +75,10 @@ function TalkViewModel() {
     });
 
     window.setInterval(function() {
-        console.log('timer...');
-    }, 1000);
+        $.get( "/users", function( data, status ) {
+            $('.participants').text(data);
+        });
+    }, 2000);
 }
 
 ko.applyBindings(new TalkViewModel());
