@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body>
+
+<div class="frame">
+
+    <div class="base">
+        <div id="userStatus">Not Connected</div>
+        <hr/>
+        <div class="viewDiv">
+            <div id="output">
+            </div>
+            <div class="participants">
+            </div>
+        </div>
+        <hr/>
+        <div class="inputDiv">
+            <label id="titleInput" for="input" data-bind="value: titleInput"></label>
+            <input type="text" data-bind="value: inputText" id="input"/>
+        </div>
+        <div class="controlersDiv">
+            <input type="button" id="connectBtn" value="CONNECT"
+                   data-bind="click: openConnection, disable: isConnected"/>
+            <input type="button" id="sendBtn" value="SEND" data-bind="click: send, enable: isConnected"/>
+        </div>
+    </div>
+
+</div>
+
+</body>
+
+<script type='text/javascript' src='js/knockout-3.4.0.js'></script>
+<script type='text/javascript' src='js/jquery-2.2.2.min.js'></script>
+<script type="text/javascript" src="js/model.js"></script>
+</html>

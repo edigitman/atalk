@@ -1,0 +1,22 @@
+.base {
+    margin: auto;
+    width: 60%;
+}
+
+#input {
+    width: 100%;
+}
+
+#output {
+    height: 140px;
+    overflow: auto;
+    display: inline-block;
+    width: 80%;
+}
+
+.participants{
+    width: 18%;
+    display: inline-block;
+    vertical-align: top;
+    background-color: lightskyblue;
+}
