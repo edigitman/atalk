@@ -47,7 +47,7 @@ public class TalkEndpoint {
             msg.setDate(sdf.format(new Date()));
             // todo -- persist maybe
 
-            DbAccess.getInst().save(msg);
+            //DbAccess.getInst().save(msg);
 
             for (Session ses : session.getOpenSessions()) {
                 try {
