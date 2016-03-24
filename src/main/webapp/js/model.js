@@ -16,8 +16,8 @@ function TalkViewModel() {
     inputText = ko.observable('');
     titleInput = ko.observable('Name:');
     isConnected = ko.observable(false);
-
-    var name = '';
+    usersList = ko.observableArray();
+    username = ko.observable('');
 
     var webSocket;
     var output = $("#output");
@@ -33,13 +33,13 @@ function TalkViewModel() {
             alert('Name mandatory !');
             return;
         }
-        name = inputText();
+        username(inputText());
         // Create a websocket
-        webSocket = new WebSocket("ws://45.32.184.20/talk/" + name);
-        //webSocket = new WebSocket("ws://localhost:8080/talk/" + name);
+        //webSocket = new WebSocket("ws://45.32.184.20/talk/" + name);
+        webSocket = new WebSocket("ws://localhost:8080/talk/" + username());
 
         webSocket.onopen = function (event) {
-            $("#userStatus").text("Connected as [" + name + "]!");
+            $("#userStatus").text("Connected as [" + username() + "]!");
             isConnected(true);
             titleInput('Text:');
             inputText('');
@@ -47,23 +47,40 @@ function TalkViewModel() {
         };
 
         webSocket.onmessage = function (event) {
-            self.updateOutput(event.data);
+            var obj = JSON.parse(event.data);
+            if (obj.type == 'users') {
+                self.loadUsers(obj.users);
+            } else {
+                if (obj.type == "po") {
+                    usersList.removeAll();
+                    self.loadUsers(obj.users);
+                } else {
+                    self.updateOutput(obj);
+                }
+            }
         };
 
         webSocket.onclose = function (event) {
-            self.updateOutput("Connection Closed");
+            $("#userStatus").text("Connection Closed");
             isConnected(false);
         };
     };
 
-    this.updateOutput = function (text) {
-        output.append("<br/>" + text);
+    this.loadUsers = function(arr){
+        $.each( arr, function( index, value ){
+            usersList.push(value);
+        });
+    };
+
+    this.updateOutput = function (obj) {
+        output.append("<br/>" + obj.date + " [" + obj.sender + "]: " + obj.text);
         output.prop({scrollTop: output.prop("scrollHeight")});
     };
 
     this.send = function () {
         if (webSocket != undefined && webSocket.readyState == WebSocket.OPEN && inputText() !== '') {
-            webSocket.send(inputText());
+            var obj = {type: 'msg', sender: username(), text: inputText()};
+            webSocket.send(JSON.stringify(obj));
             inputText('');
             $("#input").focus();
         }
@@ -74,10 +91,11 @@ function TalkViewModel() {
         self.send();
     });
 
-    window.setInterval(function() {
-        $.get( "/users", function( data, status ) {
-            $('.participants').text(data);
-        });
+    window.setInterval(function () {
+        if (webSocket != undefined && webSocket.readyState == WebSocket.OPEN) {
+            var obj = {type: 'ping', sender: username()};
+            webSocket.send(JSON.stringify(obj));
+        }
     }, 2000);
 }
 

@@ -16,6 +16,9 @@
             <div id="output">
             </div>
             <div class="participants">
+                <ul data-bind="foreach: usersList">
+                    <li><b data-bind="text: $data"></b></li>
+                </ul>
             </div>
         </div>
         <hr/>

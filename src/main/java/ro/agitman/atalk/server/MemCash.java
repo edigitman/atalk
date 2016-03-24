@@ -1,4 +1,4 @@
-package com.javacodegeeks.snippets.enterprise.jettywebsocket.jsr356.server;
+package ro.agitman.atalk.server;
 
 import javax.websocket.Session;
 import java.util.HashMap;
