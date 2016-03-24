@@ -16,7 +16,6 @@ $.fn.enterKey = function (fnc) {
             return $(
                 '<audio id="soundDiv" autoplay="autoplay" style="display:none;">'
                 + '<source src="audio/' + arguments[0] + '.mp3" />'
-                + '<source src="audio/' + arguments[0] + '.ogg" />'
                 + '<embed src="audio/' + arguments[0] + '.mp3" hidden="true" autostart="true" loop="false" class="playSound" />'
                 + '</audio>'
             ).appendTo('body');
@@ -35,6 +34,10 @@ function TalkViewModel() {
 
     var webSocket;
     var output = $("#output");
+
+    var window_focus;
+    $(window).focus(function() { window_focus = true; })
+        .blur(function() { window_focus = false; });
 
     this.openConnection = function () {
 
@@ -71,10 +74,12 @@ function TalkViewModel() {
                     self.loadUsers(obj.users);
                 } else {
                     self.updateOutput(obj);
-                    $.playSound('ding');
-                    setTimeout(function () {
-                        $( "#soundDiv" ).remove();
-                    }, 1050);
+                    if(!window_focus){
+                        $.playSound('ding');
+                        setTimeout(function () {
+                            $( "#soundDiv" ).remove();
+                        }, 1050);
+                    }
                 }
             }
         };
