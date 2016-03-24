@@ -52,7 +52,7 @@ function TalkViewModel() {
         }
         username(inputText());
         // Create a websocket
-        webSocket = new WebSocket("ws://45.32.184.20/talk/" + name);
+        webSocket = new WebSocket("ws://45.32.184.20/talk/" + username());
         //webSocket = new WebSocket("ws://localhost:8080/talk/" + username());
 
         webSocket.onopen = function (event) {
