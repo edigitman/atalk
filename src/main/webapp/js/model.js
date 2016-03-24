@@ -36,8 +36,13 @@ function TalkViewModel() {
     var output = $("#output");
 
     var window_focus;
-    $(window).focus(function() { window_focus = true; })
-        .blur(function() { window_focus = false; });
+    $(window).focus(function () {
+            window_focus = true;
+            $(document).prop('title', 'atalk');
+        })
+        .blur(function () {
+            window_focus = false;
+        });
 
     this.openConnection = function () {
 
@@ -74,10 +79,12 @@ function TalkViewModel() {
                     self.loadUsers(obj.users);
                 } else {
                     self.updateOutput(obj);
-                    if(!window_focus){
+                    $(document).prop('title', obj.text);
+                    if (!window_focus) {
                         $.playSound('ding');
+                        self.changeTitle();
                         setTimeout(function () {
-                            $( "#soundDiv" ).remove();
+                            $("#soundDiv").remove();
                         }, 1050);
                     }
                 }
@@ -113,6 +120,14 @@ function TalkViewModel() {
             webSocket.send(JSON.stringify(obj));
             inputText('');
             $("#input").focus();
+        }
+    };
+
+    this.changeTitle = function () {
+        var title = $(document).prop('title');
+        if (title.indexOf('>>>') == -1) {
+            $(document).prop('title', '>' + title);
+            setTimeout(self.changeTitle(), 1000);
         }
     };
 

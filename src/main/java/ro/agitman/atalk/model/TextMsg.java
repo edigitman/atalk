@@ -93,4 +93,16 @@ public class TextMsg {
     public void setTodays(List<TextMsg> todays) {
         this.todays = todays;
     }
+
+    @Override
+    public String toString() {
+        return "TextMsg{" +
+                "type='" + type + '\'' +
+                ", sender='" + sender + '\'' +
+                ", text='" + text + '\'' +
+                ", date='" + date + '\'' +
+                ", insertDate=" + insertDate +
+                ", id=" + id +
+                '}';
+    }
 }

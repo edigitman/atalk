@@ -3,7 +3,7 @@ package ro.agitman.atalk.server;
 import ro.agitman.atalk.model.TextMsg;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -23,6 +23,7 @@ public class DbAccess {
     }
 
     public void save(TextMsg msg) {
+        System.out.println("Called save: " + msg);
         msg.setInsertDate(new Date());
         EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
@@ -31,9 +32,12 @@ public class DbAccess {
 
         em.getTransaction().commit();
         em.close();
+
+        System.out.println("Called save successfully: " + msg);
     }
 
     public List<TextMsg> getToday() {
+        System.out.println("Called getToday");
         List<TextMsg> result;
 
         Calendar calendar = Calendar.getInstance();
@@ -47,9 +51,12 @@ public class DbAccess {
         query.setParameter("yesterday", calendar.getTime(), TemporalType.DATE);
         result = query.getResultList();
 
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm:ss");
+        System.out.println("yesterday: " + sdf.format(calendar.getTime()));
+
         em.getTransaction().commit();
         em.close();
-
+        System.out.println("Called getToday successfully with " + result.size());
         return result;
     }
 
