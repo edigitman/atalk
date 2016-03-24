@@ -21,8 +21,11 @@ public class TalkEndpoint {
         Gson gson = new Gson();
         try {
             TextMsg msg = new TextMsg();
-            msg.setType("users");
+            msg.setType("connect");
+            msg.setSender(clientId);
+            DbAccess.getInst().save(msg);
             msg.getUsers().addAll(MemCash.getInstance().getSessions().values());
+            msg.getTodays().addAll(DbAccess.getInst().getToday());
             session.getBasicRemote().sendObject(gson.toJson(msg));
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,7 +48,6 @@ public class TalkEndpoint {
         } else {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM HH:mm:ss");
             msg.setDate(sdf.format(new Date()));
-            // todo -- persist maybe
 
             DbAccess.getInst().save(msg);
 

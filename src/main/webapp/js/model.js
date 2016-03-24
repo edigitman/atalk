@@ -10,6 +10,20 @@ $.fn.enterKey = function (fnc) {
     })
 };
 
+(function ($) {
+    $.extend({
+        playSound: function () {
+            return $(
+                '<audio id="soundDiv" autoplay="autoplay" style="display:none;">'
+                + '<source src="audio/' + arguments[0] + '.mp3" />'
+                + '<source src="audio/' + arguments[0] + '.ogg" />'
+                + '<embed src="audio/' + arguments[0] + '.mp3" hidden="true" autostart="true" loop="false" class="playSound" />'
+                + '</audio>'
+            ).appendTo('body');
+        }
+    });
+})(jQuery);
+
 // page View Model
 function TalkViewModel() {
     var self = this;
@@ -35,7 +49,7 @@ function TalkViewModel() {
         }
         username(inputText());
         // Create a websocket
-        //webSocket = new WebSocket("ws://45.32.184.20/talk/" + name);
+        //webSocket = new WebSocket("ws://45.32.184.20/talk/" + username());
         webSocket = new WebSocket("ws://localhost:8080/talk/" + username());
 
         webSocket.onopen = function (event) {
@@ -48,14 +62,19 @@ function TalkViewModel() {
 
         webSocket.onmessage = function (event) {
             var obj = JSON.parse(event.data);
-            if (obj.type == 'users') {
+            if (obj.type == 'connect') {
                 self.loadUsers(obj.users);
+                self.loadHistory(obj.todays);
             } else {
                 if (obj.type == "po") {
                     usersList.removeAll();
                     self.loadUsers(obj.users);
                 } else {
                     self.updateOutput(obj);
+                    $.playSound('ding');
+                    setTimeout(function () {
+                        $( "#soundDiv" ).remove();
+                    }, 1050);
                 }
             }
         };
@@ -66,9 +85,15 @@ function TalkViewModel() {
         };
     };
 
-    this.loadUsers = function(arr){
-        $.each( arr, function( index, value ){
+    this.loadUsers = function (arr) {
+        $.each(arr, function (index, value) {
             usersList.push(value);
+        });
+    };
+
+    this.loadHistory = function (hist) {
+        $.each(hist, function (index, value) {
+            self.updateOutput(value);
         });
     };
 
