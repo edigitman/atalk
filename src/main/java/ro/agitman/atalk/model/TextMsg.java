@@ -21,6 +21,7 @@ public class TextMsg {
     private String sender;
     private String text;
     private String date;
+    private String color;
     private Date insertDate;
     private List<String> users = new ArrayList<String>();
     private List<TextMsg> todays = new ArrayList<TextMsg>();
@@ -92,6 +93,15 @@ public class TextMsg {
 
     public void setTodays(List<TextMsg> todays) {
         this.todays = todays;
+    }
+
+    @Transient
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     @Override

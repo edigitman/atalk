@@ -9,17 +9,48 @@ import java.util.Map;
  */
 public class MemCash {
 
+    private String[] predefineColors = new String[]{
+            "lightblue",
+            "lightcoral",
+            "lightgoldenrodyellow",
+            "lightgray",
+            "lightpink",
+            "lightseagreen",
+            "lightyellow",
+            "lightgreen",
+            "lightsalmon"
+    };
     private static MemCash instance = new MemCash();
 
     private Map<Session, String> sessions = new HashMap<Session, String>();
+    private Map<String, String> colors = new HashMap<String, String>();
 
-    private MemCash(){}
+    private MemCash() {
+    }
 
-    public static MemCash getInstance(){
+    public static MemCash getInstance() {
         return instance;
     }
 
     public Map<Session, String> getSessions() {
         return sessions;
+    }
+
+    public Map<String, String> getColors() {
+        return colors;
+    }
+
+    public void addColor(String userId) {
+        colors.put(userId, findColor());
+    }
+
+    private String findColor() {
+
+        for (String color : predefineColors) {
+            if (!colors.values().contains(color)) {
+                return color;
+            }
+        }
+        return "white";
     }
 }

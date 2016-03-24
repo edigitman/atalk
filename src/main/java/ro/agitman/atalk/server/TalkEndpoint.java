@@ -11,6 +11,7 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @ServerEndpoint(value = "/talk/{clientId}", encoders = {TextMsgEncoder.class}, decoders = {TextMsgDecoder.class})
 public class TalkEndpoint {
@@ -18,14 +19,19 @@ public class TalkEndpoint {
     @OnOpen
     public void onOpen(@PathParam("clientId") String clientId, Session session) {
         MemCash.getInstance().getSessions().put(session, clientId);
+        MemCash.getInstance().addColor(clientId);
         Gson gson = new Gson();
         try {
             TextMsg msg = new TextMsg();
             msg.setType("connect");
             msg.setSender(clientId);
+
             DbAccess.getInst().save(msg);
+
             msg.getUsers().addAll(MemCash.getInstance().getSessions().values());
-            msg.getTodays().addAll(DbAccess.getInst().getToday());
+
+            msg.getTodays().addAll(fullInfoMessages());
+
             session.getBasicRemote().sendObject(gson.toJson(msg));
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,9 +54,8 @@ public class TalkEndpoint {
         } else {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM HH:mm:ss");
             msg.setDate(sdf.format(new Date()));
-
-            //DbAccess.getInst().save(msg);
-
+            DbAccess.getInst().save(msg);
+            msg.setColor(MemCash.getInstance().getColors().get(msg.getSender()));
             for (Session ses : session.getOpenSessions()) {
                 try {
                     ses.getBasicRemote().sendObject(msg);
@@ -66,4 +71,17 @@ public class TalkEndpoint {
         MemCash.getInstance().getSessions().remove(session);
         System.out.println("Closing a WebSocket due to " + reason.getReasonPhrase());
     }
+
+    private List<TextMsg> fullInfoMessages() {
+
+        List<TextMsg> messages = DbAccess.getInst().getToday();
+
+        for (TextMsg message : messages) {
+            message.setColor(MemCash.getInstance().getColors().get(message.getSender()));
+        }
+
+        return messages;
+    }
+
+
 }

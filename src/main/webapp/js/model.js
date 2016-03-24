@@ -57,8 +57,7 @@ function TalkViewModel() {
         }
         username(inputText());
         // Create a websocket
-        webSocket = new WebSocket("ws://45.32.184.20/talk/" + username());
-        //webSocket = new WebSocket("ws://localhost:8080/talk/" + username());
+        webSocket = new WebSocket("ws://" + window.location.host + "/talk/" + username());
 
         webSocket.onopen = function (event) {
             $("#userStatus").text("Connected as [" + username() + "]!");
@@ -79,10 +78,9 @@ function TalkViewModel() {
                     self.loadUsers(obj.users);
                 } else {
                     self.updateOutput(obj);
-                    $(document).prop('title', obj.text);
                     if (!window_focus) {
                         $.playSound('ding');
-                        self.changeTitle();
+                        self.changeTitle(obj.text);
                         setTimeout(function () {
                             $("#soundDiv").remove();
                         }, 1050);
@@ -110,7 +108,7 @@ function TalkViewModel() {
     };
 
     this.updateOutput = function (obj) {
-        output.append("<br/>" + obj.date + " [" + obj.sender + "]: " + obj.text);
+        output.append("<div style='background-color: " + obj.color + "'>" + obj.date + " <b>" + obj.sender + "</b>: " + obj.text + "</div>");
         output.prop({scrollTop: output.prop("scrollHeight")});
     };
 
@@ -123,8 +121,13 @@ function TalkViewModel() {
         }
     };
 
-    this.changeTitle = function () {
+    this.changeTitle = function (message) {
         var title = $(document).prop('title');
+        if (title.indexOf('>') == -1) {
+            $(document).prop('title', +message);
+            title = message;
+        }
+
         if (title.indexOf('>>>') == -1) {
             $(document).prop('title', '>' + title);
             setTimeout(self.changeTitle(), 1000);
