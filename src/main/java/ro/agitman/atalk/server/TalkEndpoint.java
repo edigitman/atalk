@@ -49,7 +49,7 @@ public class TalkEndpoint {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM HH:mm:ss");
             msg.setDate(sdf.format(new Date()));
 
-            DbAccess.getInst().save(msg);
+            //DbAccess.getInst().save(msg);
 
             for (Session ses : session.getOpenSessions()) {
                 try {
