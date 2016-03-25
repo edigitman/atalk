@@ -7,16 +7,24 @@
     width: 100%;
 }
 
+.inputDiv{
+    margin-bottom: 5px;
+}
+
 #output {
-    height: 500px;
+    height: 300px;
     overflow: auto;
     display: inline-block;
     width: 80%;
 }
 
-.participants{
+#userStatusDiv {
+    text-align: center;
+}
+
+.participants {
     width: 18%;
     display: inline-block;
     vertical-align: top;
-    background-color: lightskyblue;
+    background-color: whitesmoke;
 }

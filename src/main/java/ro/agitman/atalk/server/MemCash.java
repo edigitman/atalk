@@ -10,15 +10,15 @@ import java.util.Map;
 public class MemCash {
 
     private String[] predefineColors = new String[]{
-            "lightblue",
-            "lightcoral",
-            "lightgoldenrodyellow",
-            "lightgray",
-            "lightpink",
-            "lightseagreen",
-            "lightyellow",
-            "lightgreen",
-            "lightsalmon"
+            "darkblue",
+            "darkorange",
+            "darkturqoise",
+            "darkmagenta",
+            "darkcyan",
+            "darkgray",
+            "darkgreen",
+            "darkred",
+            "darkviolet"
     };
     private static MemCash instance = new MemCash();
 
@@ -51,6 +51,6 @@ public class MemCash {
                 return color;
             }
         }
-        return "white";
+        return "black";
     }
 }

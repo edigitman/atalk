@@ -1,33 +1,7 @@
-// jquery plugin for enterKey
-$.fn.enterKey = function (fnc) {
-    return this.each(function () {
-        $(this).keyup(function (ev) {
-            var keycode = (ev.keyCode ? ev.keyCode : ev.which);
-            if (keycode == '13') {
-                fnc.call(this, ev);
-            }
-        })
-    })
-};
-
-(function ($) {
-    $.extend({
-        playSound: function () {
-            return $(
-                '<audio id="soundDiv" autoplay="autoplay" style="display:none;">'
-                + '<source src="audio/' + arguments[0] + '.mp3" />'
-                + '<embed src="audio/' + arguments[0] + '.mp3" hidden="true" autostart="true" loop="false" class="playSound" />'
-                + '</audio>'
-            ).appendTo('body');
-        }
-    });
-})(jQuery);
-
 // page View Model
 function TalkViewModel() {
     var self = this;
     inputText = ko.observable('');
-    titleInput = ko.observable('Name:');
     isConnected = ko.observable(false);
     usersList = ko.observableArray();
     username = ko.observable('');
@@ -35,56 +9,48 @@ function TalkViewModel() {
     var webSocket;
     var output = $("#output");
 
-    var window_focus;
+    var isWindowFocused;
     $(window).focus(function () {
-            window_focus = true;
-            $(document).prop('title', 'atalk');
-        })
-        .blur(function () {
-            window_focus = false;
-        });
+        isWindowFocused = true;
+        $(document).prop('title', 'atalk');
+    }).blur(function () {
+        isWindowFocused = false;
+    });
 
     this.openConnection = function () {
-
         // open the connection if one does not exist
         if (webSocket !== undefined && webSocket.readyState !== WebSocket.CLOSED) {
             return;
         }
 
-        if (inputText() == '') {
+        username(inputText());
+        if (username() == '') {
             alert('Name mandatory !');
             return;
         }
-        username(inputText());
+
         // Create a websocket
         webSocket = new WebSocket("ws://" + window.location.host + "/talk/" + username());
-
         webSocket.onopen = function (event) {
             $("#userStatus").text("Connected as [" + username() + "]!");
             isConnected(true);
-            titleInput('Text:');
             inputText('');
             $("#input").focus();
         };
 
         webSocket.onmessage = function (event) {
             var obj = JSON.parse(event.data);
+            //first connect
             if (obj.type == 'connect') {
                 self.loadUsers(obj.users);
                 self.loadHistory(obj.todays);
             } else {
+                // response to ping
                 if (obj.type == "po") {
-                    usersList.removeAll();
                     self.loadUsers(obj.users);
                 } else {
-                    self.updateOutput(obj);
-                    if (!window_focus) {
-                        $.playSound('ding');
-                        self.changeTitle(obj.text);
-                        setTimeout(function () {
-                            $("#soundDiv").remove();
-                        }, 1050);
-                    }
+                    //text message
+                    self.showMessage(obj);
                 }
             }
         };
@@ -95,50 +61,60 @@ function TalkViewModel() {
         };
     };
 
+    //empty and load list of users
     this.loadUsers = function (arr) {
+        usersList.removeAll();
         $.each(arr, function (index, value) {
             usersList.push(value);
         });
     };
 
+    //load list of messages from history
     this.loadHistory = function (hist) {
         $.each(hist, function (index, value) {
             self.updateOutput(value);
         });
     };
 
-    this.updateOutput = function (obj) {
-        output.append("<div style='background-color: " + obj.color + "'>" + obj.date + " <b>" + obj.sender + "</b>: " + obj.text + "</div>");
-        output.prop({scrollTop: output.prop("scrollHeight")});
-    };
-
+    // send text message to server is not empty, clean and focus input
     this.send = function () {
-        if (webSocket != undefined && webSocket.readyState == WebSocket.OPEN && inputText() !== '') {
-            var obj = {type: 'msg', sender: username(), text: inputText()};
-            webSocket.send(JSON.stringify(obj));
+        if (webSocket != undefined && webSocket.readyState == WebSocket.OPEN && $.trim(inputText()) !== '') {
+            webSocket.send(JSON.stringify({type: 'msg', sender: username(), text: inputText()}));
+
             inputText('');
             $("#input").focus();
         }
     };
 
-    this.changeTitle = function (message) {
-        var title = $(document).prop('title');
-        if (title.indexOf('>') == -1) {
-            $(document).prop('title', +message);
-            title = message;
-        }
-
-        if (title.indexOf('>>>') == -1) {
-            $(document).prop('title', '>' + title);
-            setTimeout(self.changeTitle(), 1000);
+    //display message and notify user
+    this.showMessage = function (obj) {
+        self.updateOutput(obj);
+        if (!isWindowFocused) {
+            self.outOfFocusNotification(obj);
         }
     };
 
+    //add message to screen and scroll panel
+    this.updateOutput = function (obj) {
+        output.append("<div class='chatLine' title='" + obj.date + "'><b>" + obj.sender + "</b>: <span style='color: " + obj.color + "'>" + obj.text + "</span></div>");
+        output.prop({scrollTop: output.prop("scrollHeight")});
+    };
+
+    // update page title if out of focus
+    this.outOfFocusNotification = function (obj) {
+        $.playSound('ding');
+        if ($(document).prop('title').indexOf('>>>') == -1) {
+            $(document).prop('title', '>>> ' + obj.sender + ': ' + obj.text);
+        }
+    };
+
+    //enter pressed on text field
     $("#input").enterKey(function () {
         inputText.valueHasMutated();
         self.send();
     });
 
+    // keep the socket open and update on users status
     window.setInterval(function () {
         if (webSocket != undefined && webSocket.readyState == WebSocket.OPEN) {
             var obj = {type: 'ping', sender: username()};
