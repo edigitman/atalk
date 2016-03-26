@@ -16,37 +16,20 @@
 </head>
 
 <body>
-
-<nav class="navbar navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <div class="navbar-brand">aTalk</div>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-            <div id="userStatusDiv" class="navbar-form navbar-right" style="margin-right: 50px">
-                Status: <b id="userStatus">Not Connected</b>
-            </div>
-        </div>
-        <!--/.nav-collapse -->
-    </div>
-</nav>
-
 <div class="container" style="margin-top: 50px">
-
+    <div class="header">
+        <div style="display: inline-block"><b>aTalk</b></div>
+        <div style="display: inline-block; width: 90%; text-align: right">
+            <div style="display: inline-block"> Status: <i id="userStatus">Not Connected</i></div>
+        </div>
+    </div>
     <div class="viewDiv">
         <div id="output">
         </div>
         <div class="participants">
             <div style="text-align: center">participants</div>
             <ul data-bind="foreach: usersList">
-                <li><b data-bind="text: $data"></b></li>
+                <li><i data-bind="text: $data"></i></li>
             </ul>
         </div>
     </div>
@@ -56,10 +39,12 @@
         <input type="text" data-bind="value: inputText" id="input"/>
     </div>
     <div class="controlersDiv">
-        <input type="button" id="connectBtn" class="btn btn-primary" value="CONNECT"
+        <input type="button" id="connectBtn" class="btn btn-primary" value="connect"
                data-bind="click: openConnection, disable: isConnected"/>
-        <input type="button" id="sendBtn" class="btn btn-success" value="SEND"
+        <input type="button" id="sendBtn" class="btn btn-success" value="send"
                data-bind="click: send, enable: isConnected"/>
+        <input type="button" id="disconnectBtn" class="btn btn-danger pull-right" value="disconnect"
+                data-bind="click: disconnect, enable: isConnected">
     </div>
 
 </div>
@@ -71,6 +56,7 @@
 <script type='text/javascript' src='js/jquery-2.2.2.min.js'></script>
 <script type='text/javascript' src='js/bootstrap.min.js'></script>
 <script type="text/javascript" src="js/helpers.js"></script>
+<script type="text/javascript" src="js/js.cookie.js"></script>
 <script type="text/javascript" src="js/model.js"></script>
 
 </body>

@@ -12,10 +12,16 @@ function TalkViewModel() {
     var isWindowFocused;
     $(window).focus(function () {
         isWindowFocused = true;
-        $(document).prop('title', 'atalk');
+        $(document).prop('title', 'aTalk');
     }).blur(function () {
         isWindowFocused = false;
     });
+
+    this.disconnect = function(){
+        webSocket.close();
+        usersList.removeAll();
+        Cookies.remove('aTalk', {expires: 30});
+    };
 
     this.openConnection = function () {
         // open the connection if one does not exist
@@ -32,10 +38,11 @@ function TalkViewModel() {
         // Create a websocket
         webSocket = new WebSocket("ws://" + window.location.host + "/talk/" + username());
         webSocket.onopen = function (event) {
-            $("#userStatus").text("Connected as [" + username() + "]!");
+            self.changeStatus("Connected as [" + username() + "]!");
             isConnected(true);
             inputText('');
             $("#input").focus();
+            Cookies.set('aTalk', username(), {expires: 30});
         };
 
         webSocket.onmessage = function (event) {
@@ -56,7 +63,7 @@ function TalkViewModel() {
         };
 
         webSocket.onclose = function (event) {
-            $("#userStatus").text("Connection Closed");
+            self.changeStatus("Connection Closed");
             isConnected(false);
         };
     };
@@ -108,6 +115,10 @@ function TalkViewModel() {
         }
     };
 
+    this.changeStatus = function (message) {
+        $("#userStatus").html(message);
+    };
+
     //enter pressed on text field
     $("#input").enterKey(function () {
         inputText.valueHasMutated();
@@ -121,6 +132,14 @@ function TalkViewModel() {
             webSocket.send(JSON.stringify(obj));
         }
     }, 2000);
+
+    $(document).ready(function () {
+        var name = Cookies.get('aTalk');
+        if (name != undefined) {
+            inputText(name);
+            self.openConnection();
+        }
+    });
 }
 
 ko.applyBindings(new TalkViewModel());
