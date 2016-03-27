@@ -17,7 +17,7 @@ function TalkViewModel() {
         isWindowFocused = false;
     });
 
-    this.disconnect = function(){
+    this.disconnect = function () {
         webSocket.close();
         usersList.removeAll();
         Cookies.remove('aTalk', {expires: 30});
@@ -139,6 +139,10 @@ function TalkViewModel() {
             inputText(name);
             self.openConnection();
         }
+    });
+
+    $(window).resize(function () {
+        $('#output').height($(window).height() * 0.5);
     });
 }
 
